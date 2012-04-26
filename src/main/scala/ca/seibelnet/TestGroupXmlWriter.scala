@@ -43,6 +43,7 @@ class TestGroupXmlWriter(val name: String) {
         case Result.Failure => failures += 1
         case Result.Error => errors += 1
         case Result.Skipped => skipped += 1
+        case _ => {}
       }
     }
   }
