@@ -52,7 +52,7 @@ class TestGroupXmlWriter(val name: String) {
   def write(path: String) {
 
     val resultXml =
-      <testSuite errors={errors.toString} failures={failures.toString} name={name} tests={tests.toString} time={"0"} timestamp={new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date())}>
+      <testsuite errors={errors.toString} failures={failures.toString} name={name} tests={tests.toString} time={"0"} timestamp={new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date())}>
           <properties/>
         {
           for (e <- testEvents; t <- e.detail) yield
@@ -74,9 +74,9 @@ class TestGroupXmlWriter(val name: String) {
         }
         <system-out></system-out>
         <system-err></system-err>
-      </testSuite>
+      </testsuite>
 
-    XML.save(path+name+".xml",resultXml,xmlDecl = true)
+    XML.save(path + "TEST-" + name + ".xml",resultXml,xmlDecl = true)
 
   }
 
