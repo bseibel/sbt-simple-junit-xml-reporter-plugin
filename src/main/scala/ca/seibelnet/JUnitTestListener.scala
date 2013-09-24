@@ -36,7 +36,7 @@ class JUnitTestListener(val targetPath: String) extends TestReportListener {
   }
 
   private def flushOutput() {
-    val file = new File("TEST-" + targetPath)
+    val file = new File(targetPath)
     file.mkdirs()
 
     currentOutput.foreach(_.write(targetPath))
