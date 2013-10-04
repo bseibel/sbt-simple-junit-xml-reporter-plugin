@@ -4,4 +4,4 @@ name := "sbt-simple-junit-xml-reporter-plugin"
 
 organization := "ca.seibelnet"
 
-version := "0.2"
+version := "0.3"
