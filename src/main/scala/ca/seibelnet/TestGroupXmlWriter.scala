@@ -28,20 +28,17 @@ class TestGroupXmlWriter(val name: String) {
   var errors: Int = 0
   var failures: Int = 0
   var tests: Int = 0
-  var skipped: Int = 0
 
   lazy val hostName = InetAddress.getLocalHost.getHostName
   lazy val testEvents: ListBuffer[TestEvent] = new ListBuffer[TestEvent]
 
   def addEvent(testEvent: TestEvent) {
+    tests += 1
     testEvents += testEvent
-    for (e: Event <- testEvent.detail) {
-      tests += 1
-      e match {
-        case TestResult.Failed => failures += 1
-        case TestResult.Error => errors += 1
-        case _ => {}
-      }
+    testEvent.result match {
+      case Some(TestResult.Failed) => failures += 1
+      case Some(TestResult.Error) => errors += 1
+      case _ => {}
     }
   }
 
@@ -54,10 +51,10 @@ class TestGroupXmlWriter(val name: String) {
           for (e <- testEvents; t <- e.detail) yield {
             <testcase classname={ name } name={ t.selector.asInstanceOf[TestSelector].testName } time={ "0" }>
               {
-                t match {
-                  case TestResult.Failed =>
+                e.result match {
+                  case Some(TestResult.Failed) =>
                     <failure message={ t.throwable.get.getMessage } type={ t.throwable.getClass.getName }>{ t.throwable.get.getStackTrace.map { e => e.toString }.mkString("\n") }</failure>
-                  case TestResult.Error =>
+                  case Some(TestResult.Error) =>
                     <error message={ t.throwable.get.getMessage } type={ t.throwable.getClass.getName }>{ t.throwable.get.getStackTrace.map { e => e.toString }.mkString("\n") }</error>
                   case _ => {}
                 }
