@@ -73,7 +73,7 @@ class TestGroupXmlWriter(val name: String) {
         <system-err></system-err>
       </testsuite>
 
-    XML.save(path+"/"+name+".xml",resultXml,xmlDecl = true)
+    XML.save(path+"/TEST-"+name+".xml",resultXml,xmlDecl = true)
 
   }
 
