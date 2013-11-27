@@ -22,7 +22,7 @@ object TestGroupXmlWriter {
   }
 }
 
-class TestGroupXmlWriter(val name: String) {
+class TestGroupXmlWriter(val name: String) extends TestGroupWriter {
 
   var errors: Int = 0
   var failures: Int = 0
@@ -51,7 +51,7 @@ class TestGroupXmlWriter(val name: String) {
         <properties/>
         {
           for (e <- testEvents; t <- e.detail) yield {
-            <testcase classname={ name } name={ t.selector.asInstanceOf[TestSelector].testName } time={ "0" }>
+            <testcase classname={ t.fullyQualifiedName } name={ t.selector.asInstanceOf[TestSelector].testName } time={ "0" }>
               {
                 t.status match {
 				  case Status.Failure =>

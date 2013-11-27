@@ -1,6 +1,7 @@
 package ca.seibelnet
 
 import sbt._
+import sbt.testing._
 import Keys._
 
 /**
@@ -9,37 +10,46 @@ import Keys._
  * Time: 12:02 PM
  */
 
+// TODO test this!
 object JUnitTestReporting extends Plugin {
   override def settings = Seq(
-    testListeners += new JUnitTestListener("./test-reports/")
+    testListeners += new JUnitTestListener("./test-reports/", new TestGroupXmlWriterFactory)
   )
 }
 
-class JUnitTestListener(val targetPath: String) extends TestReportListener {
+class JUnitTestListener(val targetPath: String, val writerFactory: TestGroupWriterFactory) extends TestReportListener {
 
-  var currentOutput: Option[TestGroupXmlWriter] = None
+  var currentOutput: Map[String, TestGroupWriter] = Map()
 
-  def testEvent(event: TestEvent) {
-      currentOutput.foreach(_.addEvent(event))
+  def testEvent(event: TestEvent): Unit = {
+    if (event.detail.size > 0) {
+      currentOutput.get(event.detail.head.fullyQualifiedName) match {
+          case Some(v) => v.addEvent(event)
+          case None    => Unit
+      }
+    }
   }
 
-  def endGroup(name: String, result: TestResult.Value) {
-    flushOutput()
+  def endGroup(name: String, result: TestResult.Value): Unit = {
+    flushOutput(name)
   }
 
-  def endGroup(name: String, t: Throwable) {
-    flushOutput()
+  def endGroup(name: String, t: Throwable): Unit = {
+    flushOutput(name)
   }
 
-  def startGroup(name: String) {
-    currentOutput = Some(TestGroupXmlWriter(name))
+  def startGroup(name: String): Unit = {
+    currentOutput = currentOutput + (name -> writerFactory.createTestGroupWriter(name))
   }
 
-  private def flushOutput() {
+  private def flushOutput(name: String): Unit = {
     val file = new File(targetPath)
     file.mkdirs()
 
-    currentOutput.foreach(_.write(targetPath))
+    currentOutput.get(name) match {
+      case Some(v) =>  v.write(targetPath)
+      case None    =>  Unit
+    }
   }
 
 }
