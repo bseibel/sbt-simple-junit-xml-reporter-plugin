@@ -9,11 +9,17 @@ import sbt.testing._
 
 class JUnitTestListenerTest extends FunSuite with BeforeAndAfter with MockitoSugar {
   var mockTestGroupWriterFactory: TestGroupWriterFactory = _
+  var mockTestReportDirectory: TestReportDirectory = _
   var underTest: JUnitTestListener = _
 
   before {
     mockTestGroupWriterFactory = mock[TestGroupWriterFactory]
-    underTest = new JUnitTestListener("test-target-path", mockTestGroupWriterFactory)
+    mockTestReportDirectory = mock[TestReportDirectory]
+    underTest = new JUnitTestListener(mockTestGroupWriterFactory, mockTestReportDirectory)
+  }
+
+  test("when class under test is created then the test report directory is set up") {
+    verify(mockTestReportDirectory).setupTestDirectory
   }
 
   test("given no group has been started when a test event is recorded then nothing happens") {
@@ -78,7 +84,7 @@ class JUnitTestListenerTest extends FunSuite with BeforeAndAfter with MockitoSug
     underTest.startGroup("testClassName")
     underTest.endGroup("testClassName", TestResult.Passed)
 
-    verify(mockTestGroupWriter).write("test-target-path")
+    verify(mockTestGroupWriter).write(mockTestReportDirectory)
     verifyNoMoreInteractions(mockTestGroupWriter)
   }
 
@@ -92,7 +98,7 @@ class JUnitTestListenerTest extends FunSuite with BeforeAndAfter with MockitoSug
     underTest.startGroup("testClassName2")
     underTest.endGroup("testClassName1", TestResult.Passed)
 
-    verify(mockTestGroupWriter1).write("test-target-path")
+    verify(mockTestGroupWriter1).write(mockTestReportDirectory)
     verifyNoMoreInteractions(mockTestGroupWriter1)
     verifyNoMoreInteractions(mockTestGroupWriter2)
   }
@@ -124,7 +130,7 @@ class JUnitTestListenerTest extends FunSuite with BeforeAndAfter with MockitoSug
     underTest.startGroup("testClassName2")
     underTest.endGroup("testClassName2", TestResult.Passed)
 
-    verify(mockTestGroupWriter2).write("test-target-path")
+    verify(mockTestGroupWriter2).write(mockTestReportDirectory)
     verifyNoMoreInteractions(mockTestGroupWriter1)
     verifyNoMoreInteractions(mockTestGroupWriter2)
   }

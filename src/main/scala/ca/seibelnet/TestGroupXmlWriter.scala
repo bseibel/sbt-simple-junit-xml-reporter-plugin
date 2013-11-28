@@ -45,7 +45,7 @@ class TestGroupXmlWriter(val name: String) extends TestGroupWriter {
     }
   }
 
-  def write(path: String) {
+  def write(reportDirectory: TestReportDirectory) {
     val resultXml =
       <testsuite errors={ errors.toString } failures={ failures.toString } name={ name } tests={ tests.toString } time={ "0" } timestamp={ new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()) }>
         <properties/>
@@ -73,8 +73,7 @@ class TestGroupXmlWriter(val name: String) extends TestGroupWriter {
         <system-err></system-err>
       </testsuite>
 
-    XML.save(path+"/TEST-"+name+".xml",resultXml,xmlDecl = true)
-
+    XML.save(reportDirectory.getAbsolutePath +"/TEST-"+name+".xml",resultXml,xmlDecl = true)
   }
 
 }

@@ -10,16 +10,16 @@ import Keys._
  * Time: 12:02 PM
  */
 
-// TODO test this!
 object JUnitTestReporting extends Plugin {
   override def settings = Seq(
-    testListeners += new JUnitTestListener("./test-reports/", new TestGroupXmlWriterFactory)
+    testListeners += new JUnitTestListener(new TestGroupXmlWriterFactory, new TestReportDirectory("./target/test-reports"))
   )
 }
 
-class JUnitTestListener(val targetPath: String, val writerFactory: TestGroupWriterFactory) extends TestReportListener {
+class JUnitTestListener(val writerFactory: TestGroupWriterFactory, val reportDirectory: TestReportDirectory) extends TestReportListener {
 
   var currentOutput: Map[String, TestGroupWriter] = Map()
+  reportDirectory.setupTestDirectory
 
   def testEvent(event: TestEvent): Unit = {
     if (event.detail.size > 0) {
@@ -38,16 +38,13 @@ class JUnitTestListener(val targetPath: String, val writerFactory: TestGroupWrit
     flushOutput(name)
   }
 
-  def startGroup(name: String): Unit = {
+  def startGroup(name: String): Unit = this.synchronized {
     currentOutput = currentOutput + (name -> writerFactory.createTestGroupWriter(name))
   }
 
   private def flushOutput(name: String): Unit = {
-    val file = new File(targetPath)
-    file.mkdirs()
-
     currentOutput.get(name) match {
-      case Some(v) =>  v.write(targetPath)
+      case Some(v) =>  v.write(reportDirectory)
       case None    =>  Unit
     }
   }
